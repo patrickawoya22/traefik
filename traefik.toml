@@ -1,0 +1,59 @@
+checkNewVersion = false
+debug = true
+logLevel = "ERROR"
+InsecureSkipVerify=true
+defaultEntryPoints = ["https","http"]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+  compress = true
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+ # [entryPoints.https.redirect]
+ #     regex = "^https://dusbe.(.*)"
+ #     replacement = "https://www.dusbe.$1"
+ #     permanent = true
+  [entryPoints.https.tls]
+  MinVersion = "VersionTLS12"
+
+[retry]
+
+[docker]
+   endpoint = "unix:///var/run/docker.sock"
+   domain = "traefik"
+   watch = true
+   exposedByDefault = true
+   swarmmode = true
+
+[web]
+   address = ":8080"
+
+[acme]
+  acmeLogging=true
+  onDemand=true
+  OnHostRule=true
+  email = "dusbestore@gmail.com"
+  storage = "acme.json"
+  entryPoint = "https"
+  onHostRule = true
+[acme.httpChallenge]
+   entryPoint = "http"
+
+[[acme.domains]]
+   main = "dusbe.com"
+   sans = ["dusbe.com","www.dusbe.com"]
+[[acme.dusbe.co.uk]]
+   main = "dusbe.co.uk"
+   sans = ["dusbe.co.uk"]
+[[acme.gurep.com]]
+   main = "eshopdeluxe.com"
+   sans = ["eshopdeluxe.com","www.eshopdeluxe.com"]
+[[acme.makeupshoponline.com]]
+   main = "makeupshoponline.com"
+   sans = ["makeupshoponline.com","www.makeupshoponline.com"]
+[[acme.gridwebsites.co]]
+   main = "gridwebsites.co"
+   sans = ["gridwebsites.co","www.gridwebsites.co"]

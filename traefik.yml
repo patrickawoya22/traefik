@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  traefik:
+    image: traefik:v1.7.16
+    command: --web --docker --docker.domain=localhost.com --logLevel=ERROR #https://docs.traefik.io/observability/logs/
+    ports:
+      - target: 80
+        published: 80
+     #   protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+    #    protocol: tcp
+        mode: host
+      - target: 8080
+        published: 8080
+    #    protocol: tcp
+        mode: host
+
+    networks:
+      - traefik
+    labels:
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=Host:gridwebsites.co"
+      - "traefik.frontend.passHostHeader=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.backend.loadbalancer.method=wrr"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/traefik/traefik.toml:/traefik.toml
+      - /opt/traefik/acme.json:/acme.json
+
+networks:
+  traefik:
+    external: true

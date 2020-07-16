@@ -1,0 +1,55 @@
+version: '3.7'
+
+services:
+
+
+   #Start elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.10
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+      - /backups:/opt/elasticsearch/backup
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+    deploy:
+      replicas: 1 # replicas  cant be more than one server might crash if more are use:
+     #End elasticsearch
+
+   #Start makeupshoponline
+  avononlinestore:
+    image: avononlinestore
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.avononlinestore.rule=Host(`makeupshoponline.com`)"
+      - "traefik.http.routers.avononlinestore.entrypoints=web"
+
+   #End makeupshoponline
+    
+   #Start dusbe
+
+   #End dusbe
+
+volumes:
+  esdata1:
+    driver: local
+  dbdata:
+  backups:
+    external: true
+
+networks:
+  esnet:
+    external: false
+  proxy:
+     external: true

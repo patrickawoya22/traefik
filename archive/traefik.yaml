@@ -1,0 +1,35 @@
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+#    network: proxynetwork
+  file:
+    directory: "./rules"
+    watch: true
+
+certificatesResolvers:
+  default:
+    acme:
+      email: "bestore@gmail.com"
+      storage: "acme.json"
+      httpChallenge:
+        entryPoint: web
+
+http:
+  routers:
+    hass:
+      entryPoints:
+        - https
+      service: service-hass
+      rule: Host("gridwebsites.co")
+      middlewares:
+        - "https"
+      tls:
+        certResolver: default
+  services:
+    service-hass:
+      loadBalancer:
+        servers:
+          - url: http ://123.123.123.123:8123
+        passHostHeader: true
+        passTLSCert: true

@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  store:
+    image: avononlinestore
+    build:
+      context: avononlinestore
+    expose:
+       - "4100"    
+    deploy:
+      replicas: 2
+    networks:
+      - traefik
+    labels:      
+      - "traefik.backend=avonnode_new_store"
+      - "traefik.docker.network=web"
+      - "traefik.frontend.rule=Host:makeupshoponline.com,www.makeupshoponline.com"
+      - "traefik.enable=true"
+      - "traefik.port=4100"
+networks:
+  traefik:
+    external: true

@@ -1,0 +1,19 @@
+cluster.name: elasticsearch
+network.host: 0.0.0.0
+transport.host: 0.0.0.0
+node.name: elasticsearch
+http.host: 0.0.0.0
+network.bind_host: 0.0.0.0
+network.publish_host: 0.0.0.0
+transport.tcp.port: 9300
+discovery.zen.ping_timeout: 10s
+discovery.zen.ping.unicast.hosts: ["162.214.78.255:9200"]
+
+
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.keystore.type: PKCS12
+xpack.security.transport.ssl.verification_mode: certificate
+xpack.security.transport.ssl.keystore.path: elastic-certificates.p12
+xpack.security.transport.ssl.truststore.path: elastic-certificates.p12
+xpack.security.transport.ssl.truststore.type: PKCS12
