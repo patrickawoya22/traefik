@@ -1,0 +1,70 @@
+version: '3.7'
+
+services:
+
+   #Start elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.0
+    environment:
+      - cluster.name=docker-cluster
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - ./elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - esdata1:/usr/share/elasticsearch/data
+      - /backups:/opt/elasticsearch/backup
+    ports:
+      - 9300:9200
+    networks:
+      - elasticsearch-6-2_web
+    deploy:
+      replicas: 1 # replicas  cant be more than one server might crash if more are use:
+     #End elasticsearch
+     
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.8.0
+    ports:
+      - 5602:5601
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml   
+    networks:
+      - elasticsearch-6-2_web
+
+
+
+  #Start Web
+  uk_dusbe:
+    image: uk_dusbe
+    deploy:
+      replicas: 1 
+    networks:
+      - traefik
+      - elasticsearch-6-2_web
+    volumes:
+      - /home/storage/dusbe/public/img/product/main-product:/var/www/public/img/product/main-product
+      - /home/storage/dusbe/public/img/product/s-thumbnail:/var/www/public/img/product/s-thumbnail
+      - /home/storage/dusbe/public/img/product/thumbnail:/var/www/public/img/product/thumbnail
+      - /home/storage/dusbe/public/img/captcha:/var/www/public/img/captcha
+    labels:
+      - traefik.backend=traefik_traefik
+      - traefik.docker.network=traefik
+      - traefik.frontend.rule=Host:gridwebsites.com,www.gridwebsites.com
+      - traefik.enable=true
+      - traefik.frontend.passHostHeader=true
+      - traefik.port=80
+  #End web
+
+
+volumes:
+  esdata1:
+    driver: local
+  dbdata:
+  backups:
+    external: true
+
+networks:
+  elasticsearch-6-2_web:
+    external: false
+  traefik:
+     external: true

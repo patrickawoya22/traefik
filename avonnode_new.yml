@@ -3,10 +3,6 @@ version: '3.4'
 services:
   store:
     image: avononlinestore
-    build:
-      context: avononlinestore
-    expose:
-       - "4100"    
     deploy:
       replicas: 2
     networks:

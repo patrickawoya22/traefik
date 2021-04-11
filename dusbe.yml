@@ -7,18 +7,11 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.8.0
     environment:
       - cluster.name=docker-cluster
-     # - bootstrap.memory_lock=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     volumes:
       - ./elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
-      - ./elastic-stack-ca.p12:/usr/share/elasticsearch/config/elastic-stack-ca.p12
       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
       - esdata1:/usr/share/elasticsearch/data
-#      - /docker-data-volumes/elasticsearch:/usr/share/elasticsearch/data
       - /backups:/opt/elasticsearch/backup
     ports:
       - 9200:9200
@@ -38,21 +31,37 @@ services:
     networks:
       - elasticsearch-6-2_web
 
+
+
   dusbe_api:
     image: dusbe-api
     networks: 
       - elasticsearch-6-2_web
+    volumes:
+      - /home/storage/dusbe/public/site_map_us/sitemap.xml:/usr/src/app/site_map/sitemap.xml
+      - /home/storage/dusbe/public/site_map_us/273_901_dpa_product_catalog_feed_rss.xml:/usr/src/app/site_map/273_901_dpa_product_catalog_feed_rss.xml
+      - /home/storage/dusbe/public/img/product/main-product:/usr/src/app/public/img/product/main-product  
+      - /home/storage/dusbe/public/img/product/s-thumbnail:/usr/src/app/public/img/product/s-thumbnail  
+      - /home/storage/dusbe/public/img/product/thumbnail:/usr/src/app/public/img/product/thumbnail
 
+
+  dusbe_api_uk:
+    image: dusbe-api-uk
+    networks:
+      - elasticsearch-6-2_web
+    volumes:
+      - /home/storage/dusbe/public/site_map_uk/sitemap.xml:/usr/src/app/site_map/sitemap.xml
+      - /home/storage/dusbe/public/site_map_uk/273_901_dpa_product_catalog_feed_rss.xml:/usr/src/app/site_map/273_901_dpa_product_catalog_feed_rss.xml
+      - /home/storage/dusbe/public/img/product/main-product:/usr/src/app/public/img/product/main-product
+      - /home/storage/dusbe/public/img/product/s-thumbnail:/usr/src/app/public/img/product/s-thumbnail
+      - /home/storage/dusbe/public/img/product/thumbnail:/usr/src/app/public/img/product/thumbnail
 
   #Start Web
+
   dusbe:
     image: dusbe
-    build:
-      context: dusbe
-    expose:
-       - 80
     deploy:
-      replicas: 1 
+      replicas: 1
     networks:
       - traefik
       - elasticsearch-6-2_web
@@ -60,16 +69,82 @@ services:
       - /home/storage/dusbe/public/img/product/main-product:/var/www/public/img/product/main-product
       - /home/storage/dusbe/public/img/product/s-thumbnail:/var/www/public/img/product/s-thumbnail
       - /home/storage/dusbe/public/img/product/thumbnail:/var/www/public/img/product/thumbnail
+      - /home/storage/dusbe/public/img/blog/main:/var/www/public/img/blog/main
+      - /home/storage/dusbe/public/img/blog/thumbnail:/var/www/public/img/blog/thumbnail
       - /home/storage/dusbe/public/img/captcha:/var/www/public/img/captcha
+      - /home/storage/dusbe/data/cache/dusbe:/var/www/data/cache
+      - /home/storage/dusbe/public/site_map_us/sitemap.xml:/var/www/public/site_map/sitemap.xml
+      - /home/storage/dusbe/public/site_map_us/273_901_dpa_product_catalog_feed_rss.xml:/var/www/public/site_map/273_901_dpa_product_catalog_feed_rss.xml
+      - /home/storage/dusbe/public/site_map_us/robots.txt:/var/www/public/robots.txt
     labels:
-      - traefik.backend=traefik_traefik
+      - traefik.backend=traefik_traefik_us
       - traefik.docker.network=traefik
       - traefik.frontend.rule=Host:dusbe.com,www.dusbe.com
       - traefik.enable=true
       - traefik.frontend.passHostHeader=true
       - traefik.port=80
+
   #End web
 
+  #Start Web
+
+  ukdusbe:
+    image: ukdusbe
+    deploy:
+      replicas: 1
+    networks:
+      - traefik
+      - elasticsearch-6-2_web
+    volumes:
+      - /home/storage/dusbe/public/img/product/main-product:/var/www/public/img/product/main-product
+      - /home/storage/dusbe/public/img/product/s-thumbnail:/var/www/public/img/product/s-thumbnail
+      - /home/storage/dusbe/public/img/product/thumbnail:/var/www/public/img/product/thumbnail
+      - /home/storage/dusbe/public/img/blog/main:/var/www/public/img/blog/main
+      - /home/storage/dusbe/public/img/blog/thumbnail:/var/www/public/img/blog/thumbnail
+      - /home/storage/dusbe/public/img/captcha:/var/www/public/img/captcha
+      - /home/storage/dusbe/data/cache/ukdusbe:/var/www/data/cache
+      - /home/storage/dusbe/public/site_map_uk/sitemap.xml:/var/www/public/site_map/sitemap.xml
+      - /home/storage/dusbe/public/site_map_uk/273_901_dpa_product_catalog_feed_rss.xml:/var/www/public/site_map/273_901_dpa_product_catalog_feed_rss.xml
+      - /home/storage/dusbe/public/site_map_uk/robots.txt:/var/www/public/robots.txt
+    labels:
+      - traefik.backend=traefik_traefik_uk
+      - traefik.docker.network=traefik
+      - traefik.frontend.rule=Host:dusbe.co.uk,www.dusbe.co.uk
+      - traefik.enable=true
+      - traefik.frontend.passHostHeader=true
+      - traefik.port=80
+
+  #End web
+
+  #Start Web
+ 
+  usdusbe:
+    image: usdusbe
+    deploy:
+      replicas: 1
+    networks:
+      - traefik
+      - elasticsearch-6-2_web
+    volumes:
+      - /home/storage/dusbe/public/img/product/main-product:/var/www/public/img/product/main-product
+      - /home/storage/dusbe/public/img/product/s-thumbnail:/var/www/public/img/product/s-thumbnail
+      - /home/storage/dusbe/public/img/product/thumbnail:/var/www/public/img/product/thumbnail
+      - /home/storage/dusbe/public/img/blog/main:/var/www/public/img/blog/main
+      - /home/storage/dusbe/public/img/blog/thumbnail:/var/www/public/img/blog/thumbnail
+      - /home/storage/dusbe/public/img/captcha:/var/www/public/img/captcha
+      - /home/storage/dusbe/data/cache/usdusbe:/var/www/data/cache
+      - /home/storage/dusbe/public/site_map_us/sitemap.xml:/var/www/public/site_map/sitemap.xml
+      - /home/storage/dusbe/public/site_map_us/273_901_dpa_product_catalog_feed_rss.xml:/var/www/public/site_map/273_901_dpa_product_catalog_feed_rss.xml
+      - /home/storage/dusbe/public/site_map_us/robots.txt:/var/www/public/robots.txt
+    labels:
+      - traefik.backend=traefik_traefik_us_2
+      - traefik.docker.network=traefik
+      - traefik.frontend.rule=Host:dusbe.us,www.dusbe.us
+      - traefik.enable=true
+      - traefik.frontend.passHostHeader=true
+      - traefik.port=80
+
+  #End web
 volumes:
   esdata1:
     driver: local

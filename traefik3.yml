@@ -14,8 +14,8 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=proxy"
       - '--providers.docker.defaultRule=Host("gridwebsites.co")'
-      - "--entrypoints.http.address=:80"
-      - "--entrypoints.https.address=:443"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
     #  - "--certificatesresolvers.le.acme.httpchallenge=true"
       - "--certificatesresolvers.le.acme.httpChallenge.entrypoint=web"
       - "--certificatesresolvers.le.acme.tlschallenge=true"
@@ -26,20 +26,19 @@ services:
     labels:
         - traefik.enable=true
         - traefik.docker.network=proxy
-        - traefik.http.middlewares.admin-auth.basicauth.users=traefik:password1234
+      #  - traefik.http.middlewares.admin-auth.basicauth.users=traefik:password1234
         - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
         - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-        - traefik.http.routers.traefik-public-http.rule=Host(`gridwebsites.co`)
         - traefik.http.routers.traefik-public-http.entrypoints=http
+        - traefik.http.routers.traefik-public-http.rule=Host(`gridwebsites.co`)
         - traefik.http.routers.traefik-public-http.middlewares=https-redirect
-        - traefik.http.routers.traefik-public-https.rule=Host(`gridwebsites.co`)
         - traefik.http.routers.traefik-public-https.entrypoints=https
+        - traefik.http.routers.traefik-public-https.rule=Host(`gridwebsites.co`)
         - traefik.http.routers.traefik-public-https.tls=true
         - traefik.http.routers.traefik-public-https.service=api@internal
         - traefik.http.routers.traefik-public-https.tls.certresolver=le
-        - traefik.http.routers.traefik-public-https.middlewares=admin-auth
-        - traefik.http.services.traefik-public.loadbalancer.server.port=8080
-
+       # - traefik.http.routers.traefik-public-https.middlewares=admin-auth
+       # - traefik.http.services.traefik-public.loadbalancer.server.port=8080
 
     ports:
       - target: 80
@@ -59,15 +58,6 @@ services:
     volumes:
       - "./letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-
-  avononlinestore:
-    image: avononlinestore
-    networks:
-      - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.avononlinestore.rule=Host(`makeupshoponline.com`)"
-      - "traefik.http.routers.avononlinestore.entrypoints=web"
 
 networks:
   proxy:
